@@ -12,7 +12,7 @@ using SmartSchedulerApi.Data;
 namespace SmartSchedulerApi.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20260106084627_InitialCreate")]
+    [Migration("20260106232746_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -107,26 +107,34 @@ namespace SmartSchedulerApi.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
                     b.Property<string>("Email")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("FullName")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("PasswordHash")
+                    b.Property<byte[]>("PasswordHash")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("varbinary(max)");
 
-                    b.Property<string>("Role")
+                    b.Property<byte[]>("PasswordSalt")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("varbinary(max)");
 
                     b.Property<int>("RoleId")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("Email")
+                        .IsUnique();
+
+                    b.HasIndex("RoleId");
 
                     b.ToTable("Users");
                 });
@@ -151,6 +159,22 @@ namespace SmartSchedulerApi.Migrations
                         .IsRequired();
 
                     b.Navigation("AssignedTo");
+                });
+
+            modelBuilder.Entity("SmartSchedulerApi.Models.User", b =>
+                {
+                    b.HasOne("SmartSchedulerApi.Models.Role", "Role")
+                        .WithMany("Users")
+                        .HasForeignKey("RoleId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Role");
+                });
+
+            modelBuilder.Entity("SmartSchedulerApi.Models.Role", b =>
+                {
+                    b.Navigation("Users");
                 });
 #pragma warning restore 612, 618
         }
