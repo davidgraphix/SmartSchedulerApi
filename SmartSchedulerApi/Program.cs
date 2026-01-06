@@ -14,7 +14,9 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 builder.Services.AddControllers()
     .AddNewtonsoftJson();
 
-// JWT Configuration (values will come from appsettings.json later)
+// JWT Configuration 
+var jwtKey = builder.Configuration["JwtSettings:SecretKey"];
+
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {
@@ -25,7 +27,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             ValidateLifetime = true,
             ValidateIssuerSigningKey = true,
             IssuerSigningKey = new SymmetricSecurityKey(
-                Encoding.UTF8.GetBytes("THIS_IS_A_TEMP_SECRET_KEY_CHANGE_LATER"))
+                Encoding.UTF8.GetBytes(jwtKey))
         };
     });
 
